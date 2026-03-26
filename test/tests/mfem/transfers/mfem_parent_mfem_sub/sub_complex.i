@@ -25,29 +25,25 @@
 
 [BCs]
   [bottom]
-    type = MFEMComplexScalarDirichletBC
+    type = MFEMScalarDirichletBC
     variable = u
     boundary = 2
-    coefficient_real = 1
-    coefficient_imag = 1
+    coefficient = 1
+    numeric_type = complex
   []
   [top]
-    type = MFEMComplexScalarDirichletBC
+    type = MFEMScalarDirichletBC
     variable = u
     boundary = 4
+    numeric_type = complex
   []
 []
 
 [Kernels]
   [diff]
-    type = MFEMComplexKernel
+    type = MFEMDiffusionKernel
     variable = u
-    [RealComponent]
-      type = MFEMDiffusionKernel
-    []
-    [ImagComponent]
-      type = MFEMDiffusionKernel
-    []
+    numeric_type = complex
   []
 []
 

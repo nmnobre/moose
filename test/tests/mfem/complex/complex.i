@@ -54,38 +54,37 @@ kappa_i = -7.86151377757423297509831172647
 []
 
 [BCs]
-  [dbc]
-    type = MFEMComplexScalarDirichletBC
+  [dbc_real]
+    type = MFEMScalarDirichletBC
     variable = u
-    coefficient_real = u0_r
-    coefficient_imag = u0_i
+    coefficient = u0_r
+    numeric_type = real
+  []
+  [dbc_imag]
+    type = MFEMScalarDirichletBC
+    variable = u
+    coefficient = u0_i
+    numeric_type = imag
   []
 []
 
 [Kernels]
-  [diffusion_complex]
-    type = MFEMComplexKernel
+  [diffusion]
+    type = MFEMDiffusionKernel
     variable = u
-    [RealComponent]
-      type = MFEMDiffusionKernel
-      coefficient = stiffnessCoef
-    []
-    [ImagComponent]
-      type = MFEMDiffusionKernel
-      coefficient = 0.0
-    []
+    coefficient = stiffnessCoef
   []
-  [mass_complex]
-    type = MFEMComplexKernel
+  [mass_real]
+    type = MFEMMassKernel
     variable = u
-    [RealComponent]
-      type = MFEMMassKernel
-      coefficient = massCoef
-    []
-    [ImagComponent]
-      type = MFEMMassKernel
-      coefficient = lossCoef
-    []
+    coefficient = massCoef
+    numeric_type = real
+  []
+  [mass_imag]
+    type = MFEMMassKernel
+    variable = u
+    coefficient = lossCoef
+    numeric_type = imag
   []
 []
 

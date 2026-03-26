@@ -72,14 +72,16 @@ elec_cond_air = 1e-323
 
 [BCs]
   [tangential_E]
-    type = MFEMComplexVectorTangentialDirichletBC
+    type = MFEMVectorTangentialDirichletBC
     variable = E
     boundary = '2 3 4'
+    numeric_type = complex
   []
   [WaveguidePortIn]
     type = MFEMRWTE10IntegratedBC
     variable = E
     boundary = '5'
+    numeric_type = complex
     input_port = true
     port_length_vector = "24.76e-2 0.0 0.0"
     port_width_vector = "0.0 12.38e-2 0.0"
@@ -91,6 +93,7 @@ elec_cond_air = 1e-323
     type = MFEMRWTE10IntegratedBC
     variable = E
     boundary = '6'
+    numeric_type = complex
     input_port = false
     port_length_vector = "24.76e-2 0.0 0.0"
     port_width_vector = "0.0 12.38e-2 0.0"
@@ -102,24 +105,21 @@ elec_cond_air = 1e-323
 
 [Kernels]
   [curlcurl]
-    type = MFEMComplexKernel
+    type = MFEMCurlCurlKernel
     variable = E
-    [RealComponent]
-      type = MFEMCurlCurlKernel
-      coefficient = MagReluctivity
-    []
+    coefficient = MagReluctivity
   []
-  [mass_loss]
-    type = MFEMComplexKernel
+  [mass_real]
+    type = MFEMVectorFEMassKernel
     variable = E
-    [RealComponent]
-      type = MFEMVectorFEMassKernel
-      coefficient = massCoef
-    []
-    [ImagComponent]
-      type = MFEMVectorFEMassKernel
-      coefficient = lossCoef
-    []
+    coefficient = massCoef
+    numeric_type = real
+  []
+  [mass_imag]
+    type = MFEMVectorFEMassKernel
+    variable = E
+    coefficient = lossCoef
+    numeric_type = imag
   []
 []
 
