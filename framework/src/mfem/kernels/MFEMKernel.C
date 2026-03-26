@@ -24,6 +24,8 @@ MFEMKernel::validParams()
   params.registerSystemAttributeName("Kernel");
   params.addParam<VariableName>("variable",
                                 "Variable labelling the weak form this kernel is added to");
+  MooseEnum numeric_types("real imag complex", "real");
+  params.addParam<MooseEnum>("numeric_type", numeric_types, "Number type used for the kernel");
   return params;
 }
 
@@ -31,8 +33,14 @@ MFEMKernel::MFEMKernel(const InputParameters & parameters)
   : MFEMObject(parameters),
     MFEMBlockRestrictable(parameters,
                           getMFEMProblem().getMFEMVariableMesh(getParam<VariableName>("variable"))),
-    _test_var_name(getParam<VariableName>("variable"))
+    _test_var_name(getParam<VariableName>("variable")),
+    _real(getParam<MooseEnum>("numeric_type") == "real" ||
+          getParam<MooseEnum>("numeric_type") == "complex"),
+    _imag(getParam<MooseEnum>("numeric_type") == "imag" ||
+          getParam<MooseEnum>("numeric_type") == "complex")
 {
+  mooseAssert(!_imag || getMFEMProblem().getProblemData().cmplx_gridfunctions.Has(_test_var_name),
+              "Requested imag component, but variable is not complex.");
 }
 
 #endif

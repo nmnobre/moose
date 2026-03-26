@@ -315,53 +315,14 @@ MFEMProblem::addKernel(const std::string & kernel_name,
                        InputParameters & parameters)
 {
   auto kernel = addObject<MFEMKernel>(kernel_name, name, parameters).front();
-  const auto & kernel_object = *kernel;
+  auto eqn_system = getProblemData().eqn_system;
 
-  if (dynamic_cast<const MFEMComplexKernel *>(&kernel_object))
-  {
-    auto complex_kernel = std::dynamic_pointer_cast<MFEMComplexKernel>(kernel);
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddComplexKernel(std::move(complex_kernel));
-    else
-      mooseError("Cannot add complex kernel with name '" + name +
-                 "' because there is no corresponding equation system.");
-  }
+  if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
+    eqsys->AddComplexKernel(std::move(kernel));
+  else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
+    eqsys->AddKernel(std::move(kernel));
   else
-  {
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddKernel(std::move(kernel));
-    else
-      mooseError("Cannot add kernel with name '" + name +
-                 "' because there is no corresponding equation system.");
-  }
-}
-
-void
-MFEMProblem::addRealComponentToKernel(const std::string & kernel_name,
-                                      const std::string & name,
-                                      InputParameters & parameters)
-{
-  auto parent_ptr = std::dynamic_pointer_cast<MFEMComplexKernel>(
-      getMFEMObject<MFEMComplexKernel>("Kernel", name).getSharedPtr());
-  parameters.set<VariableName>("variable") = parent_ptr->getParam<VariableName>("variable");
-  auto kernel_ptr = addObject<MFEMKernel>(kernel_name, name + "_real", parameters).front();
-  parent_ptr->setRealKernel(kernel_ptr);
-}
-
-void
-MFEMProblem::addImagComponentToKernel(const std::string & kernel_name,
-                                      const std::string & name,
-                                      InputParameters & parameters)
-{
-  auto parent_ptr = std::dynamic_pointer_cast<MFEMComplexKernel>(
-      getMFEMObject<MFEMComplexKernel>("Kernel", name).getSharedPtr());
-  parameters.set<VariableName>("variable") = parent_ptr->getParam<VariableName>("variable");
-  auto kernel_ptr = addObject<MFEMKernel>(kernel_name, name + "_imag", parameters).front();
-  parent_ptr->setImagKernel(kernel_ptr);
+    mooseError("Cannot add kernel '" + name + "' as there is no corresponding equation system.");
 }
 
 void
