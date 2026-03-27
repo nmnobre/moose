@@ -30,6 +30,12 @@ public:
 protected:
   /// Name of (the test variable associated with) the weak form that the bc is applied to.
   const VariableName & _test_var_name;
+
+  /// Whether this is a real bc contribution
+  const bool _real;
+
+  /// Whether this is an imag bc contribution
+  const bool _imag;
 };
 
 #endif

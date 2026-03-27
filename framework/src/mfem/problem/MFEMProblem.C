@@ -154,28 +154,16 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
 {
   auto bc = addObject<MFEMBoundaryCondition>(bc_name, name, parameters).front();
   const auto & mfem_bc = *bc;
+  auto eqn_system = getProblemData().eqn_system;
 
   if (dynamic_cast<const MFEMIntegratedBC *>(&mfem_bc))
   {
-    auto integrated_bc = std::dynamic_pointer_cast<MFEMIntegratedBC>(bc);
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddIntegratedBC(std::move(integrated_bc));
+    if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
+      eqsys->AddComplexIntegratedBC(std::move(bc));
+    else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
+      eqsys->AddIntegratedBC(std::move(bc));
     else
-      mooseError("Cannot add integrated BC with name '" + name +
-                 "' because there is no corresponding equation system.");
-  }
-  else if (dynamic_cast<const MFEMComplexIntegratedBC *>(&mfem_bc))
-  {
-    auto integrated_bc = std::dynamic_pointer_cast<MFEMComplexIntegratedBC>(bc);
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddComplexIntegratedBC(std::move(integrated_bc));
-    else
-      mooseError("Cannot add complex integrated BC with name '" + name +
-                 "' because there is no corresponding equation system.");
+      mooseError("Cannot add BC '" + name + "' as there is no corresponding equation system.");
   }
   else if (dynamic_cast<const MFEMComplexEssentialBC *>(&mfem_bc))
   {
@@ -323,36 +311,6 @@ MFEMProblem::addKernel(const std::string & kernel_name,
     eqsys->AddKernel(std::move(kernel));
   else
     mooseError("Cannot add kernel '" + name + "' as there is no corresponding equation system.");
-}
-
-void
-MFEMProblem::addRealComponentToBC(const std::string & kernel_name,
-                                  const std::string & name,
-                                  InputParameters & parameters)
-{
-  auto parent_ptr = std::dynamic_pointer_cast<MFEMComplexIntegratedBC>(
-      getMFEMObject<MFEMComplexIntegratedBC>("BoundaryCondition", name).getSharedPtr());
-  parameters.set<VariableName>("variable") = parent_ptr->getParam<VariableName>("variable");
-  parameters.set<std::vector<BoundaryName>>("boundary") =
-      parent_ptr->getParam<std::vector<BoundaryName>>("boundary");
-  auto bc_ptr = std::dynamic_pointer_cast<MFEMIntegratedBC>(
-      addObject<MFEMBoundaryCondition>(kernel_name, name + "_real", parameters).front());
-  parent_ptr->setRealBC(bc_ptr);
-}
-
-void
-MFEMProblem::addImagComponentToBC(const std::string & kernel_name,
-                                  const std::string & name,
-                                  InputParameters & parameters)
-{
-  auto parent_ptr = std::dynamic_pointer_cast<MFEMComplexIntegratedBC>(
-      getMFEMObject<MFEMComplexIntegratedBC>("BoundaryCondition", name).getSharedPtr());
-  parameters.set<VariableName>("variable") = parent_ptr->getParam<VariableName>("variable");
-  parameters.set<std::vector<BoundaryName>>("boundary") =
-      parent_ptr->getParam<std::vector<BoundaryName>>("boundary");
-  auto bc_ptr = std::dynamic_pointer_cast<MFEMIntegratedBC>(
-      addObject<MFEMBoundaryCondition>(kernel_name, name + "_imag", parameters).front());
-  parent_ptr->setImagBC(bc_ptr);
 }
 
 int

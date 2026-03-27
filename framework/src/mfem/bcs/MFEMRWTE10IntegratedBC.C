@@ -16,7 +16,7 @@ registerMooseObject("MooseApp", MFEMRWTE10IntegratedBC);
 InputParameters
 MFEMRWTE10IntegratedBC::validParams()
 {
-  InputParameters params = MFEMComplexIntegratedBC::validParams();
+  InputParameters params = MFEMIntegratedBC::validParams();
   params.addClassDescription("Adds the Robin boundary conditions for an electromagnetic problem "
                              "with transverse waves in a rectangular waveguide.");
   params.addParam<RealVectorValue>(
@@ -37,7 +37,7 @@ MFEMRWTE10IntegratedBC::validParams()
 }
 
 MFEMRWTE10IntegratedBC::MFEMRWTE10IntegratedBC(const InputParameters & parameters)
-  : MFEMComplexIntegratedBC(parameters),
+  : MFEMIntegratedBC(parameters),
     _mu(getParam<Real>("mu")),
     _epsilon(getParam<Real>("epsilon")),
     _omega(2 * M_PI * getParam<Real>("frequency")),
@@ -47,10 +47,11 @@ MFEMRWTE10IntegratedBC::MFEMRWTE10IntegratedBC(const InputParameters & parameter
     _kc(M_PI / _a1.Norml2()),
     _k(std::complex<mfem::real_t>(0., std::sqrt(_k0 * _k0 - _kc * _kc))),
     _k_c(normalizedCrossProduct(_a1, _a2) *= _k.imag()),
-    _k_a(normalizedCrossProduct(_a2, _k_c) *= _kc)
+    _k_a(normalizedCrossProduct(_a2, _k_c) *= _kc),
+    _robin_coef_im(std::make_unique<mfem::ConstantCoefficient>(_k.imag() / _mu)),
+    _u_real(std::make_unique<mfem::VectorConstantCoefficient>(mfem::Vector({0., 0., 0.}))),
+    _u_imag(std::make_unique<mfem::VectorConstantCoefficient>(mfem::Vector({0., 0., 0.})))
 {
-  _robin_coef_im = std::make_unique<mfem::ConstantCoefficient>(_k.imag() / _mu);
-
   if (getParam<bool>("input_port"))
   {
     _u_real = std::make_unique<mfem::VectorFunctionCoefficient>(

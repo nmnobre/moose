@@ -25,6 +25,8 @@ MFEMBoundaryCondition::validParams()
   params.registerBase("BoundaryCondition");
   params.registerSystemAttributeName("BoundaryCondition");
   params.addParam<VariableName>("variable", "Variable on which to apply the boundary condition");
+  MooseEnum numeric_types("real imag complex", "real");
+  params.addParam<MooseEnum>("numeric_type", numeric_types, "Number type used for the bc");
   return params;
 }
 
@@ -32,8 +34,14 @@ MFEMBoundaryCondition::MFEMBoundaryCondition(const InputParameters & parameters)
   : MFEMObject(parameters),
     MFEMBoundaryRestrictable(
         parameters, getMFEMProblem().getMFEMVariableMesh(getParam<VariableName>("variable"))),
-    _test_var_name(getParam<VariableName>("variable"))
+    _test_var_name(getParam<VariableName>("variable")),
+    _real(getParam<MooseEnum>("numeric_type") == "real" ||
+          getParam<MooseEnum>("numeric_type") == "complex"),
+    _imag(getParam<MooseEnum>("numeric_type") == "imag" ||
+          getParam<MooseEnum>("numeric_type") == "complex")
 {
+  mooseAssert(!_imag || getMFEMProblem().getProblemData().cmplx_gridfunctions.Has(_test_var_name),
+              "Requested imag component, but variable is not complex.");
 }
 
 #endif

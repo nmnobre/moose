@@ -11,34 +11,31 @@
 
 #pragma once
 
-#include "MFEMComplexIntegratedBC.h"
-
-class MFEMRWTE10IntegratedBC : public MFEMComplexIntegratedBC
+class MFEMRWTE10IntegratedBC : public MFEMIntegratedBC
 {
 public:
   static InputParameters validParams();
 
   MFEMRWTE10IntegratedBC(const InputParameters & parameters);
 
-  void RWTE10(const mfem::Vector & x, std::vector<std::complex<mfem::real_t>> & E);
-  void RWTE10Real(const mfem::Vector & x, mfem::Vector & v);
-  void RWTE10Imag(const mfem::Vector & x, mfem::Vector & v);
-
-  virtual mfem::LinearFormIntegrator * getRealLFIntegrator() override
+protected:
+  virtual mfem::LinearFormIntegrator * createRealLFIntegrator() override
   {
-    return (getParam<bool>("input_port") ? new mfem::VectorFEBoundaryTangentLFIntegrator(*_u_real)
-                                         : nullptr);
+    return new mfem::VectorFEBoundaryTangentLFIntegrator(*_u_real);
   }
-  virtual mfem::LinearFormIntegrator * getImagLFIntegrator() override
+  virtual mfem::LinearFormIntegrator * createImagLFIntegrator() override
   {
-    return (getParam<bool>("input_port") ? new mfem::VectorFEBoundaryTangentLFIntegrator(*_u_imag)
-                                         : nullptr);
+    return new mfem::VectorFEBoundaryTangentLFIntegrator(*_u_imag);
   }
-  virtual mfem::BilinearFormIntegrator * getRealBFIntegrator() override { return nullptr; }
-  virtual mfem::BilinearFormIntegrator * getImagBFIntegrator() override
+  virtual mfem::BilinearFormIntegrator * createRealBFIntegrator() override { return nullptr; }
+  virtual mfem::BilinearFormIntegrator * createImagBFIntegrator() override
   {
     return new mfem::VectorFEMassIntegrator(_robin_coef_im.get());
   }
+
+  void RWTE10(const mfem::Vector & x, std::vector<std::complex<mfem::real_t>> & E);
+  void RWTE10Real(const mfem::Vector & x, mfem::Vector & v);
+  void RWTE10Imag(const mfem::Vector & x, mfem::Vector & v);
 
   /// Computes the unit vector in the direction of the cross product of two 3d vectors
   mfem::Vector normalizedCrossProduct(const mfem::Vector & va, const mfem::Vector & vb)
@@ -48,7 +45,6 @@ public:
     return vec /= vec.Norml2();
   }
 
-protected:
   mfem::real_t _mu;
   mfem::real_t _epsilon;
   mfem::real_t _omega;
@@ -64,8 +60,8 @@ protected:
   mfem::Vector _k_a;
 
   std::unique_ptr<mfem::ConstantCoefficient> _robin_coef_im{nullptr};
-  std::unique_ptr<mfem::VectorFunctionCoefficient> _u_real{nullptr};
-  std::unique_ptr<mfem::VectorFunctionCoefficient> _u_imag{nullptr};
+  std::unique_ptr<mfem::VectorCoefficient> _u_real{nullptr};
+  std::unique_ptr<mfem::VectorCoefficient> _u_imag{nullptr};
 };
 
 #endif
