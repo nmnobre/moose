@@ -27,6 +27,9 @@ public:
 
   // Apply the essential BC, overwriting the values of gridfunc on the boundary as desired.
   virtual void ApplyBC(mfem::GridFunction & gridfunc) = 0;
+
+  // Apply the essential BC, overwriting the values of complex gridfunc on the boundary as desired.
+  virtual void ApplyBC(mfem::ParComplexGridFunction & gridfunc) = 0;
 };
 
 #endif

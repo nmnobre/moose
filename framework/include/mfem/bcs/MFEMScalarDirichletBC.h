@@ -22,6 +22,8 @@ public:
 
   void ApplyBC(mfem::GridFunction & gridfunc) override;
 
+  void ApplyBC(mfem::ParComplexGridFunction & gridfunc) override;
+
 protected:
   mfem::Coefficient & _coef;
 };

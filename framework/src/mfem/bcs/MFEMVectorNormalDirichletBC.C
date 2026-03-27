@@ -33,4 +33,21 @@ MFEMVectorNormalDirichletBC::ApplyBC(mfem::GridFunction & gridfunc)
   gridfunc.ProjectBdrCoefficientNormal(_vec_coef, getBoundaryMarkers());
 }
 
+void
+MFEMVectorNormalDirichletBC::ApplyBC(mfem::ParComplexGridFunction & gridfunc)
+{
+  if (_real)
+  {
+    gridfunc.real().SyncMemory(gridfunc);
+    gridfunc.real().ProjectBdrCoefficientNormal(_vec_coef, getBoundaryMarkers());
+    gridfunc.real().SyncAliasMemory(gridfunc);
+  }
+  if (_imag)
+  {
+    gridfunc.imag().SyncMemory(gridfunc);
+    gridfunc.imag().ProjectBdrCoefficientNormal(_vec_coef, getBoundaryMarkers());
+    gridfunc.imag().SyncAliasMemory(gridfunc);
+  }
+}
+
 #endif

@@ -194,14 +194,14 @@ ComplexEquationSystem::AddComplexIntegratedBC(std::shared_ptr<MFEMIntegratedBC> 
 }
 
 void
-ComplexEquationSystem::AddComplexEssentialBCs(std::shared_ptr<MFEMComplexEssentialBC> bc)
+ComplexEquationSystem::AddComplexEssentialBC(std::shared_ptr<MFEMEssentialBC> bc)
 {
   const auto & test_var_name = bc->getTestVariableName();
   AddTestVariableNameIfMissing(test_var_name);
   // Register new complex essential bc map if not present for the test variable
   if (!_cmplx_essential_bc_map.Has(test_var_name))
   {
-    auto bcs = std::make_shared<std::vector<std::shared_ptr<MFEMComplexEssentialBC>>>();
+    auto bcs = std::make_shared<std::vector<std::shared_ptr<MFEMEssentialBC>>>();
     _cmplx_essential_bc_map.Register(test_var_name, std::move(bcs));
   }
   _cmplx_essential_bc_map.GetRef(test_var_name).push_back(std::move(bc));

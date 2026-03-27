@@ -33,4 +33,21 @@ MFEMVectorDirichletBC::ApplyBC(mfem::GridFunction & gridfunc)
   gridfunc.ProjectBdrCoefficient(_vec_coef, getBoundaryMarkers());
 }
 
+void
+MFEMVectorDirichletBC::ApplyBC(mfem::ParComplexGridFunction & gridfunc)
+{
+  if (_real)
+  {
+    gridfunc.real().SyncMemory(gridfunc);
+    gridfunc.real().ProjectBdrCoefficient(_vec_coef, getBoundaryMarkers());
+    gridfunc.real().SyncAliasMemory(gridfunc);
+  }
+  if (_imag)
+  {
+    gridfunc.imag().SyncMemory(gridfunc);
+    gridfunc.imag().ProjectBdrCoefficient(_vec_coef, getBoundaryMarkers());
+    gridfunc.imag().SyncAliasMemory(gridfunc);
+  }
+}
+
 #endif

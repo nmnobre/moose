@@ -52,7 +52,7 @@ public:
   void AddComplexIntegratedBC(std::shared_ptr<MFEMIntegratedBC> bc);
 
   /// Add complex essential BCs
-  void AddComplexEssentialBCs(std::shared_ptr<MFEMComplexEssentialBC> bc);
+  void AddComplexEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
 
   /// Form matrix-free representation of system operator.
   /// Used when EquationSystem assembly level is set to 'FULL', 'ELEMENT', 'PARTIAL', or 'NONE'.
@@ -112,7 +112,7 @@ protected:
       _cmplx_integrated_bc_map;
 
   // Complex essential BCs
-  NamedFieldsMap<std::vector<std::shared_ptr<MFEMComplexEssentialBC>>> _cmplx_essential_bc_map;
+  NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _cmplx_essential_bc_map;
 
   /// Pointers to coupled variables not part of the reduced EquationSystem.
   ComplexGridFunctions _cmplx_eliminated_variables;

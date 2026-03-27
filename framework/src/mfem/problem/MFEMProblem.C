@@ -153,10 +153,9 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
                                   InputParameters & parameters)
 {
   auto bc = addObject<MFEMBoundaryCondition>(bc_name, name, parameters).front();
-  const auto & mfem_bc = *bc;
   auto eqn_system = getProblemData().eqn_system;
 
-  if (dynamic_cast<const MFEMIntegratedBC *>(&mfem_bc))
+  if (auto bc = std::dynamic_pointer_cast<MFEMIntegratedBC>(bc))
   {
     if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
       eqsys->AddComplexIntegratedBC(std::move(bc));
@@ -165,32 +164,17 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
     else
       mooseError("Cannot add BC '" + name + "' as there is no corresponding equation system.");
   }
-  else if (dynamic_cast<const MFEMComplexEssentialBC *>(&mfem_bc))
+  else if (auto bc = std::dynamic_pointer_cast<MFEMEssentialBC>(bc))
   {
-    auto essential_bc = std::dynamic_pointer_cast<MFEMComplexEssentialBC>(bc);
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddComplexEssentialBCs(std::move(essential_bc));
+    if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
+      eqsys->AddComplexEssentialBC(std::move(bc));
+    else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
+      eqsys->AddEssentialBC(std::move(bc));
     else
-      mooseError("Cannot add boundary condition with name '" + name +
-                 "' because there is no corresponding equation system.");
-  }
-  else if (dynamic_cast<const MFEMEssentialBC *>(&mfem_bc))
-  {
-    auto essential_bc = std::dynamic_pointer_cast<MFEMEssentialBC>(bc);
-    auto eqsys =
-        std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(getProblemData().eqn_system);
-    if (eqsys)
-      eqsys->AddEssentialBC(std::move(essential_bc));
-    else
-      mooseError("Cannot add boundary condition with name '" + name +
-                 "' because there is no corresponding equation system.");
+      mooseError("Cannot add BC '" + name + "' as there is no corresponding equation system.");
   }
   else
-  {
     mooseError("Unsupported bc of type '", bc_name, "' and name '", name, "' detected.");
-  }
 }
 
 void
