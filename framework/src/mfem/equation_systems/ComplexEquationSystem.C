@@ -103,27 +103,6 @@ ComplexEquationSystem::BuildBilinearForms()
 }
 
 void
-ComplexEquationSystem::ApplyComplexEssentialBC(const std::string & var_name,
-                                               mfem::ParComplexGridFunction & trial_gf,
-                                               mfem::Array<int> & global_ess_markers)
-{
-  if (_essential_bc_map.Has(var_name))
-  {
-    auto & bcs = _essential_bc_map.GetRef(var_name);
-    for (auto & bc : bcs)
-    {
-      // Set constrained DoFs values on essential boundaries
-      bc->ApplyBC(trial_gf);
-      // Fetch marker array labelling essential boundaries of current BC
-      mfem::Array<int> ess_bdrs(bc->getBoundaryMarkers());
-      // Add these boundary markers to the set of markers labelling all essential boundaries
-      for (const auto i : make_range(trial_gf.ParFESpace()->GetParMesh()->bdr_attributes.Max()))
-        global_ess_markers[i] = std::max(global_ess_markers[i], ess_bdrs[i]);
-    }
-  }
-}
-
-void
 ComplexEquationSystem::ApplyEssentialBCs()
 {
   _ess_tdof_lists.resize(_trial_var_names.size());
@@ -142,7 +121,7 @@ ComplexEquationSystem::ApplyEssentialBCs()
     global_ess_markers = 0;
     // Set strongly constrained DoFs of trial_gf on essential boundaries and add markers for all
     // essential boundaries to the global_ess_markers array
-    ApplyComplexEssentialBC(trial_var_name, trial_gf, global_ess_markers);
+    ApplyEssentialBC(trial_var_name, trial_gf, global_ess_markers);
     trial_gf.FESpace()->GetEssentialTrueDofs(global_ess_markers, _ess_tdof_lists.at(i));
   }
 }

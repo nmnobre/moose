@@ -203,9 +203,10 @@ EquationSystem::Init(Moose::MFEM::GridFunctions & gridfunctions,
   _gfuncs = &gridfunctions;
 }
 
+template <typename GridFunctionType>
 void
 EquationSystem::ApplyEssentialBC(const std::string & var_name,
-                                 mfem::ParGridFunction & trial_gf,
+                                 GridFunctionType & trial_gf,
                                  mfem::Array<int> & global_ess_markers)
 {
   if (_essential_bc_map.Has(var_name))
