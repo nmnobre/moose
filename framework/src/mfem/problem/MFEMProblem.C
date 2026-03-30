@@ -153,26 +153,11 @@ MFEMProblem::addBoundaryCondition(const std::string & bc_name,
                                   InputParameters & parameters)
 {
   auto bc = addObject<MFEMBoundaryCondition>(bc_name, name, parameters).front();
-  auto eqn_system = getProblemData().eqn_system;
 
-  if (auto bc = std::dynamic_pointer_cast<MFEMIntegratedBC>(bc))
-  {
-    if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
-      eqsys->AddComplexIntegratedBC(std::move(bc));
-    else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
-      eqsys->AddIntegratedBC(std::move(bc));
-    else
-      mooseError("Cannot add BC '" + name + "' as there is no corresponding equation system.");
-  }
-  else if (auto bc = std::dynamic_pointer_cast<MFEMEssentialBC>(bc))
-  {
-    if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
-      eqsys->AddComplexEssentialBC(std::move(bc));
-    else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
-      eqsys->AddEssentialBC(std::move(bc));
-    else
-      mooseError("Cannot add BC '" + name + "' as there is no corresponding equation system.");
-  }
+  if (auto ibc = std::dynamic_pointer_cast<MFEMIntegratedBC>(bc))
+    getProblemData().eqn_system->AddIntegratedBC(std::move(ibc));
+  else if (auto ebc = std::dynamic_pointer_cast<MFEMEssentialBC>(bc))
+    getProblemData().eqn_system->AddEssentialBC(std::move(ebc));
   else
     mooseError("Unsupported bc of type '", bc_name, "' and name '", name, "' detected.");
 }
@@ -287,14 +272,7 @@ MFEMProblem::addKernel(const std::string & kernel_name,
                        InputParameters & parameters)
 {
   auto kernel = addObject<MFEMKernel>(kernel_name, name, parameters).front();
-  auto eqn_system = getProblemData().eqn_system;
-
-  if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::ComplexEquationSystem>(eqn_system))
-    eqsys->AddComplexKernel(std::move(kernel));
-  else if (auto eqsys = std::dynamic_pointer_cast<Moose::MFEM::EquationSystem>(eqn_system))
-    eqsys->AddKernel(std::move(kernel));
-  else
-    mooseError("Cannot add kernel '" + name + "' as there is no corresponding equation system.");
+  getProblemData().eqn_system->AddKernel(std::move(kernel));
 }
 
 int

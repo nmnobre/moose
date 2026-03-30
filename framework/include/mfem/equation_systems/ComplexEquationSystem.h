@@ -45,15 +45,6 @@ public:
   /// Update all essentially constrained true DoF markers and values on boundaries
   virtual void ApplyEssentialBCs() override;
 
-  /// Add complex kernels
-  void AddComplexKernel(std::shared_ptr<MFEMKernel> kernel);
-
-  /// Add complex integrated BCs
-  void AddComplexIntegratedBC(std::shared_ptr<MFEMIntegratedBC> bc);
-
-  /// Add complex essential BCs
-  void AddComplexEssentialBC(std::shared_ptr<MFEMEssentialBC> bc);
-
   /// Form matrix-free representation of system operator.
   /// Used when EquationSystem assembly level is set to 'FULL', 'ELEMENT', 'PARTIAL', or 'NONE'.
   virtual void FormSystemOperator(mfem::OperatorHandle & op,
@@ -105,14 +96,6 @@ protected:
   // Complex Linear and Bilinear Forms
   NamedFieldsMap<mfem::ParSesquilinearForm> _slfs;
   NamedFieldsMap<mfem::ParComplexLinearForm> _clfs;
-
-  // Complex kernels and integrated BCs
-  NamedFieldsMap<NamedFieldsMap<std::vector<std::shared_ptr<MFEMKernel>>>> _cmplx_kernels_map;
-  NamedFieldsMap<NamedFieldsMap<std::vector<std::shared_ptr<MFEMIntegratedBC>>>>
-      _cmplx_integrated_bc_map;
-
-  // Complex essential BCs
-  NamedFieldsMap<std::vector<std::shared_ptr<MFEMEssentialBC>>> _cmplx_essential_bc_map;
 
   /// Pointers to coupled variables not part of the reduced EquationSystem.
   ComplexGridFunctions _cmplx_eliminated_variables;
