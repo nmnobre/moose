@@ -150,14 +150,15 @@ class MFEMIntegratedBCTest : public MFEMObjectUnitTest
 public:
   MFEMIntegratedBCTest() : MFEMObjectUnitTest("MooseUnitApp")
   {
-    // Register dummy (Par)GridFunctions for the variables the BCs apply to
+    // Register dummy Par(Complex)GridFunction for the variable the BCs apply to
     auto pm = _mfem_mesh_ptr->getMFEMParMeshPtr().get();
-    mfem::common::H1_FESpace fe(pm, 1);
-    mfem::GridFunction gf(&fe);
-    _mfem_problem->getProblemData().gridfunctions.Register(
-        "test_variable_name", std::make_shared<mfem::ParGridFunction>(pm, &gf));
-    _mfem_problem->getProblemData().gridfunctions.Register(
-        "trial_variable_name", std::make_shared<mfem::ParGridFunction>(pm, &gf));
+    auto fe = std::make_shared<mfem::common::H1_ParFESpace>(pm, 1);
+    auto pgf = std::make_shared<mfem::ParGridFunction>(fe.get());
+    auto pcgf = std::make_shared<mfem::ParComplexGridFunction>(fe.get());
+    _mfem_problem->getProblemData().fespaces.Register("fe_space_name", fe);
+    _mfem_problem->getProblemData().gridfunctions.Register("test_variable_name", pgf);
+    _mfem_problem->getProblemData().gridfunctions.Register("trial_variable_name", pgf);
+    _mfem_problem->getProblemData().cmplx_gridfunctions.Register("test_cmplx_variable_name", pcgf);
   }
 
 protected:
@@ -168,6 +169,7 @@ protected:
     auto objects = _mfem_problem->addObject<T>(type, name, params);
     mooseAssert(objects.size() == 1, "Doesn't work with threading");
     return objects[0];
+
   }
 };
 
@@ -183,17 +185,35 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorNormalIntegratedConstantBC)
   bc_params.set<MFEMVectorCoefficientName>("vector_coefficient") = "1. 2. 3.";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   MFEMBoundaryNormalIntegratedBC & integrated_bc =
-      addObject<MFEMBoundaryNormalIntegratedBC>("MFEMBoundaryNormalIntegratedBC", "bc1", bc_params);
+      addObject<MFEMBoundaryNormalIntegratedBC>("MFEMBoundaryNormalIntegratedBC", "bcr", bc_params);
 
   // Test MFEMBoundaryNormalIntegratedBC returns an integrator of the expected type
-  auto lf_integrator =
-      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createLFIntegrator());
-  ASSERT_TRUE(lf_integrator != nullptr);
+  auto lf_integrator = integrated_bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
   auto blf_integrator = integrated_bc.createBFIntegrator();
-  ASSERT_TRUE(blf_integrator == nullptr);
+  ASSERT_FALSE(blf_integrator);
   delete blf_integrator;
+
+  // Construct complex boundary condition
+  bc_params.set<VariableName>("variable") = "test_cmplx_variable_name";
+  bc_params.set<MooseEnum>("numeric_type") = "complex";
+  MFEMBoundaryNormalIntegratedBC & cmplx_integrated_bc =
+      addObject<MFEMBoundaryNormalIntegratedBC>("MFEMBoundaryNormalIntegratedBC", "bcc", bc_params);
+
+  // Test MFEMBoundaryNormalIntegratedBC returns integrators of the expected type
+  auto [lf_integrator_real, lf_integrator_imag] = cmplx_integrated_bc.createComplexLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(lf_integrator_real));
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(lf_integrator_imag));
+  delete lf_integrator_real;
+  delete lf_integrator_imag;
+
+  auto [blf_integrator_real, blf_integrator_imag] = cmplx_integrated_bc.createComplexBFIntegrator();
+  ASSERT_FALSE(blf_integrator_real);
+  ASSERT_FALSE(blf_integrator_imag);
+  delete blf_integrator_real;
+  delete blf_integrator_imag;
 }
 
 /**
@@ -216,13 +236,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMBoundaryNormalIntegratedBC)
       addObject<MFEMBoundaryNormalIntegratedBC>("MFEMBoundaryNormalIntegratedBC", "bc1", bc_params);
 
   // Test MFEMBoundaryNormalIntegratedBC returns an integrator of the expected type
-  auto lf_integrator =
-      dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(integrated_bc.createLFIntegrator());
-  ASSERT_TRUE(lf_integrator != nullptr);
+  auto lf_integrator = integrated_bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryNormalLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
   auto blf_integrator = integrated_bc.createBFIntegrator();
-  ASSERT_TRUE(blf_integrator == nullptr);
+  ASSERT_FALSE(blf_integrator);
   delete blf_integrator;
 }
 
@@ -247,13 +266,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMBoundaryIntegratedBC)
       addObject<MFEMBoundaryIntegratedBC>("MFEMBoundaryIntegratedBC", "bc1", bc_params);
 
   // Test MFEMBoundaryIntegratedBC returns an integrator of the expected type
-  auto lf_integrator =
-      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createLFIntegrator());
-  ASSERT_NE(lf_integrator, nullptr);
+  auto lf_integrator = integrated_bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
   auto blf_integrator = integrated_bc.createBFIntegrator();
-  ASSERT_EQ(blf_integrator, nullptr);
+  ASSERT_FALSE(blf_integrator);
   delete blf_integrator;
 }
 
@@ -278,18 +296,35 @@ TEST_F(MFEMIntegratedBCTest, MFEMConvectiveHeatFluxBC)
   bc_params.set<MFEMScalarCoefficientName>("T_infinity") = "Tinf";
   bc_params.set<std::vector<BoundaryName>>("boundary") = {"1"};
   MFEMConvectiveHeatFluxBC & integrated_bc =
-      addObject<MFEMConvectiveHeatFluxBC>("MFEMConvectiveHeatFluxBC", "bc1", bc_params);
+      addObject<MFEMConvectiveHeatFluxBC>("MFEMConvectiveHeatFluxBC", "bcr", bc_params);
 
   // Test MFEMConvectiveHeatFluxBC returns an integrator of the expected type
-  auto lf_integrator =
-      dynamic_cast<mfem::BoundaryLFIntegrator *>(integrated_bc.createLFIntegrator());
-  ASSERT_NE(lf_integrator, nullptr);
+  auto lf_integrator = integrated_bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
-  auto blf_integrator =
-      dynamic_cast<mfem::BoundaryMassIntegrator *>(integrated_bc.createBFIntegrator());
-  ASSERT_NE(blf_integrator, nullptr);
+  auto blf_integrator = integrated_bc.createBFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryMassIntegrator *>(blf_integrator));
   delete blf_integrator;
+
+  // Construct imag boundary condition
+  bc_params.set<VariableName>("variable") = "test_cmplx_variable_name";
+  bc_params.set<MooseEnum>("numeric_type") = "imag";
+  MFEMConvectiveHeatFluxBC & imag_integrated_bc =
+      addObject<MFEMConvectiveHeatFluxBC>("MFEMConvectiveHeatFluxBC", "bci", bc_params);
+
+  // Test MFEMBoundaryNormalIntegratedBC returns integrators of the expected type
+  auto [lf_integrator_real, lf_integrator_imag] = imag_integrated_bc.createComplexLFIntegrator();
+  ASSERT_FALSE(lf_integrator_real);
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryLFIntegrator *>(lf_integrator_imag));
+  delete lf_integrator_real;
+  delete lf_integrator_imag;
+
+  auto [blf_integrator_real, blf_integrator_imag] = imag_integrated_bc.createComplexBFIntegrator();
+  ASSERT_FALSE(blf_integrator_real);
+  ASSERT_TRUE(dynamic_cast<mfem::BoundaryMassIntegrator *>(blf_integrator_imag));
+  delete blf_integrator_real;
+  delete blf_integrator_imag;
 }
 
 TEST_F(MFEMIntegratedBCTest, NLBoundaryConvectiveHeatFluxIntegratorJacobianMatchesFiniteDifference)
@@ -366,12 +401,12 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorBoundaryIntegratedConstantBC)
       addObject<MFEMVectorBoundaryIntegratedBC>("MFEMVectorBoundaryIntegratedBC", "bc1", bc_params);
 
   // Test MFEMVectorBoundaryIntegratedBC returns an integrator of the expected type
-  auto lf_integrator = dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createLFIntegrator());
-  ASSERT_NE(lf_integrator, nullptr);
+  auto lf_integrator = bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
   auto blf_integrator = bc.createBFIntegrator();
-  ASSERT_EQ(blf_integrator, nullptr);
+  ASSERT_FALSE(blf_integrator);
   delete blf_integrator;
 }
 
@@ -393,17 +428,19 @@ TEST_F(MFEMIntegratedBCTest, MFEMVectorBoundaryIntegratedBC)
       addObject<MFEMVectorBoundaryIntegratedBC>("MFEMVectorBoundaryIntegratedBC", "bc1", bc_params);
 
   // Test MFEMVectorBoundaryIntegratedBC returns an integrator of the expected type
-  auto lf_integrator = dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(bc.createLFIntegrator());
-  ASSERT_NE(lf_integrator, nullptr);
+  auto lf_integrator = bc.createLFIntegrator();
+  ASSERT_TRUE(dynamic_cast<mfem::VectorBoundaryLFIntegrator *>(lf_integrator));
   delete lf_integrator;
 
   auto blf_integrator = bc.createBFIntegrator();
-  ASSERT_EQ(blf_integrator, nullptr);
+  ASSERT_FALSE(blf_integrator);
   delete blf_integrator;
 }
 
 TEST_F(MFEMIntegratedBCTest, RejectsOffDiagonalNonlinearIntegratedBCWhenBuildingEquationSystem)
 {
+  _mfem_problem->getProblemData().cmplx_gridfunctions.Deregister("test_cmplx_variable_name");
+
   InputParameters diag_test_params = _factory.getValidParams("MFEMDiffusionKernel");
   diag_test_params.set<VariableName>("variable") = "test_variable_name";
 
@@ -441,6 +478,8 @@ TEST_F(MFEMIntegratedBCTest, RejectsOffDiagonalNonlinearIntegratedBCWhenBuilding
 
 TEST_F(MFEMIntegratedBCTest, AcceptsLinearOffDiagonalIntegratedBCWhenBuildingEquationSystem)
 {
+  _mfem_problem->getProblemData().cmplx_gridfunctions.Deregister("test_cmplx_variable_name");
+
   InputParameters diag_test_params = _factory.getValidParams("MFEMDiffusionKernel");
   diag_test_params.set<VariableName>("variable") = "test_variable_name";
 
