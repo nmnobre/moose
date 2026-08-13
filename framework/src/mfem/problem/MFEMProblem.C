@@ -76,6 +76,8 @@ MFEMProblem::MFEMProblem(const InputParameters & params)
 {
   // Initialise Hypre for all MFEM problems.
   mfem::Hypre::Init();
+  if (mfem::GetEnv("UMPIRE_DEVICE_POOL_SIZE"))
+    HYPRE_SetUmpireDevicePoolSize(std::stoul(mfem::GetEnv("UMPIRE_DEVICE_POOL_SIZE")) * (1 << 20));
   // Disable multithreading for all MFEM problems (including any libMesh or MFEM subapps).
   libMesh::libMeshPrivateData::_n_threads = 1;
 #ifdef LIBMESH_HAVE_OPENMP
