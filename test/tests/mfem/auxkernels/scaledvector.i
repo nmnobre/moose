@@ -71,9 +71,9 @@
   []
   [expected_postprocessor_scaled]
     type = ParsedVectorFunction
-    expression_x = '2.5'
-    expression_y = '5.0'
-    expression_z = '7.5'
+    expression_x = '1*sqrt(2)'
+    expression_y = '2*sqrt(2)'
+    expression_z = '3*sqrt(2)'
   []
 []
 
@@ -103,7 +103,7 @@
     type = MFEMScaledVectorAux
     variable = postprocessor_scaled
     vector_coefficient = source_field
-    coefficient = Amplitude
+    coefficient = DummyMeshDiag
     execute_on = TIMESTEP_END
   []
 []
@@ -111,10 +111,9 @@
 [Postprocessors]
   # Coefficients built from postprocessor values are not ordered against the postprocessors
   # supplying them, so this is executed on an earlier flag than the aux kernel scaling by it.
-  [Amplitude]
-    type = ConstantPostprocessor
-    value = 2.5
-    execute_on = 'INITIAL TIMESTEP_END'
+  [DummyMeshDiag]
+    type = AverageElementSize
+    execute_on = INITIAL
   []
   [UnscaledError]
     type = MFEMVectorL2Error
