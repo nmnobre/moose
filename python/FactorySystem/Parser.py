@@ -68,7 +68,7 @@ class Parser:
     def error(self, msg, node=None, param=None):
         if node is not None:
             line = node.line(param) if param else node.line()
-            self.errors.append("{}:{}: {}".format(self.fname, line, msg))
+            self.errors.append("{}:{}: {}".format(node.filename(), line, msg))
         else:
             self.errors.append("{}: {}".format(self.fname, msg))
 
@@ -173,6 +173,8 @@ class Parser:
                         params[key].append(value)
                     else:
                         params[key] = value
+                elif key != "app_name":
+                    self.error(f'unused parameter "{key}"', node=default_values, param=key)
 
             # Extract the parameters from the hit node
             self.extractParams(params, node)
