@@ -29,7 +29,7 @@
     design = 'MFEMNewtonNonlinearSolver.md'
     issues = '#33716'
     requirement = 'The system shall be able to shorten the updates taken by a native MFEM Newton nonlinear solve, such that'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     [damped]
       type = CSVDiff
       input = nldiffusion_newton.i
@@ -98,7 +98,7 @@
       input = nlheattransfer.i
       csvdiff = 'NLHeatTransferLinearized_line_sample_0003.csv'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       restep = false
       max_parallel = 10 # stacked_hexes.e has 10 elements; recovered MFEM meshes require a nonempty partition
       cli_args = 'BCs/active="linearized" '
@@ -110,7 +110,7 @@
       input = nlheattransfer.i
       csvdiff = 'NLHeatTransfer_line_sample_0003.csv'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       restep = false
       max_parallel = 10 # stacked_hexes.e has 10 elements; recovered MFEM meshes require a nonempty partition
       prereq = 'MFEMNonLinearHeatTransfer/linearized'
@@ -128,7 +128,7 @@
                 NLHeatConduction_centre_temperature_0040.csv
                 NLHeatConduction_centre_temperature_0050.csv'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     restep = false
   []
   [MFEMNonLinearHeatConductionQuadratureFunction]
@@ -143,7 +143,7 @@
                 NLHeatConduction_centre_temperature_0040.csv
                 NLHeatConduction_centre_temperature_0050.csv'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     recover = false
     restep = false
   []

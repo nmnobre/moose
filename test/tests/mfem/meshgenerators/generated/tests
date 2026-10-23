@@ -9,6 +9,7 @@
       input = 'test.i'
       detail = 'one dimensional line,'
       capabilities = 'mfem'
+      compute_devices = 'cpu cuda'
       recover = false
     []
     [2d]
@@ -18,6 +19,7 @@
       detail = 'two dimensional rectangle, or'
       cli_args = 'Mesh/gen/dim=2 Mesh/gen/ny=5'
       capabilities = 'mfem'
+      compute_devices = 'cpu cuda'
       recover = false
       prereq = 'test/1d'
     []
@@ -28,6 +30,7 @@
       detail = 'three dimensional box.'
       cli_args = 'Mesh/gen/dim=3 Mesh/gen/nx=2 Mesh/gen/ny=2 Mesh/gen/nz=2'
       capabilities = 'mfem'
+      compute_devices = 'cpu cuda'
       recover = false
       prereq = 'test/2d'
     []

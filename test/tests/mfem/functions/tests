@@ -33,6 +33,7 @@
                   'quadrature function coefficient is evaluated by an integrator using a different '
                   'integration rule.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [CylindricalCoefficients]
     type = CSVDiff

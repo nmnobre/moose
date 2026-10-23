@@ -8,7 +8,7 @@
     requirement = 'The system shall have the ability to solve a diffusion problem using a '
                   'p-multigrid (geometric multigrid) preconditioner with MFEM.'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     recover = false
     abs_zero = 1e-6
   []
@@ -19,6 +19,7 @@
     requirement = 'The system shall reject an MFEM geometric multigrid preconditioner for a '
                   'nonlinear equation system.'
     capabilities = 'mfem'
+    compute_devices = 'cpu'
   []
   [MFEMPMGRejectsComplex]
     type = RunException
@@ -31,5 +32,6 @@
     requirement = 'The system shall reject an MFEM geometric multigrid preconditioner for a '
                   'complex equation system.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
 []

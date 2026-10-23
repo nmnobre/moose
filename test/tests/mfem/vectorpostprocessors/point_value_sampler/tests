@@ -163,6 +163,7 @@
     requirement = 'The system shall sample the prescribed value of an MFEM variable using the '
                   'mesh belonging to its submesh finite element space.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
     recover = false
   []
 []

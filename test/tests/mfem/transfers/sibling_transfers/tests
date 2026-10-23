@@ -9,7 +9,7 @@
       exodiff = 'OutputData/nodal_nodal_libmesh_sub0.e'
       cli_args = "Outputs/file_base=OutputData/nodal_nodal Transfers/active='mfem_to_libmesh_nodal_nodal'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -23,7 +23,7 @@
       exodiff = 'OutputData/elem_elem_libmesh_sub0.e'
       cli_args = "Outputs/file_base=OutputData/elem_elem Transfers/active='mfem_to_libmesh_elem_elem'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -37,7 +37,7 @@
       exodiff = 'OutputData/nodal_elem_libmesh_sub0.e'
       cli_args = "Outputs/file_base=OutputData/nodal_elem Transfers/active='mfem_to_libmesh_nodal_elem'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -53,7 +53,7 @@
                   MultiApps/libmesh_sub/positions_objects=libmesh_locs
                   Transfers/active='mfem_to_libmesh_nodal_nodal'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -71,7 +71,7 @@
       cli_args = "Outputs/file_base=OutputData/nodal_nodal Transfers/active='libmesh_to_mfem_nodal_nodal'
                   MultiApps/mfem_sub/cli_args='Outputs/file_base=OutputData/nodal_nodal_mfem_sub0;VectorPostprocessors/active=nodal_sample'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       detail = 'between nodal variables,'
@@ -83,7 +83,7 @@
       cli_args = "Outputs/file_base=OutputData/elem_elem Transfers/active='libmesh_to_mfem_elem_elem'
                   MultiApps/mfem_sub/cli_args='Outputs/file_base=OutputData/elem_elem_mfem_sub0'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -98,7 +98,7 @@
       cli_args = "Outputs/file_base=OutputData/nodal_elem Transfers/active='libmesh_to_mfem_nodal_elem'
                   MultiApps/mfem_sub/cli_args='Outputs/file_base=OutputData/nodal_elem_mfem_sub0'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -114,7 +114,7 @@
                    MultiApps/mfem_sub/cli_args='Mesh/file=../../mesh/square_mixed.e';Outputs/file_base=OutputData/nodal_nodal_mixed_mfem_sub0
                    MultiApps/libmesh_sub/cli_args='Mesh/file=../../mesh/square_mixed.e'"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       # Allow warnings, needed as we are sampling constant L2 variables on element boundaries,
@@ -130,7 +130,7 @@
                   MultiApps/mfem_sub/positions_objects=mfem_locs
                   MultiApps/mfem_sub/cli_args=VectorPostprocessors/active=nodal_sample"
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       restep = false
       detail = 'and between nodal variables from nodal variables sent from one sub-app to multiple sub-apps run in parallel,'

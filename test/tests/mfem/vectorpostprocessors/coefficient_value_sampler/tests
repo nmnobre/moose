@@ -10,6 +10,7 @@
     requirement = 'The system shall evaluate real scalar MFEM function and material coefficients '
                   'at arbitrary points.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
     recover = false
   []
 
@@ -19,6 +20,7 @@
     csvdiff = 'coefficient_value_sampler_boundary_out_boundary_sample_0001.csv'
     requirement = 'The system shall evaluate an MFEM coefficient at an element boundary.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
     allow_warnings = true
     recover = false
   []
@@ -31,6 +33,7 @@
     requirement = 'The system shall reject arbitrary-point sampling of an MFEM coefficient backed '
                   'by values defined only at configured quadrature points.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
     recover = false
   []
 []

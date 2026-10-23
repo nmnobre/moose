@@ -29,6 +29,7 @@
     expect_err = 'equation systems, so the one to use cannot be inferred'
     requirement = 'The system shall report an error if several weak forms are present and an object that consumes an equation system does not name the weak form supplying it.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [MFEMUnknownWeakForm]
     type = RunException
@@ -36,6 +37,7 @@
     expect_err = 'NotAWeakForm'
     requirement = 'The system shall report an error if an object that consumes an equation system names a weak form that has not been added to the problem.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [MFEMUnknownKernel]
     type = RunException
@@ -43,6 +45,7 @@
     expect_err = 'NotAKernel'
     requirement = 'The system shall report an error if a weak form names a kernel that has not been added to the problem.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [MFEMUnknownBoundaryCondition]
     type = RunException
@@ -50,6 +53,7 @@
     expect_err = 'NotABC'
     requirement = 'The system shall report an error if a weak form names a boundary condition that has not been added to the problem.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [MFEMTransientWeakForm]
     type = CSVDiff
@@ -81,6 +85,7 @@
     expect_err = "Unsupported bc of name 'dbc' detected"
     requirement = 'The system shall report an error if a real weak form is given a complex boundary condition.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
   [MFEMComplexWeakFormRealProblem]
     type = RunException
@@ -88,5 +93,6 @@
     expect_err = "Unsupported bc of name 'flux_boundaries' detected"
     requirement = 'The system shall report an error if a complex weak form is given a real boundary condition.'
     capabilities = 'mfem'
+    compute_devices = 'cpu cuda'
   []
 []

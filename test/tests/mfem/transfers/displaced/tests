@@ -8,7 +8,7 @@
                 OutputData/Displaced/Run0/Cycle000010/proc000000.vtu'
     requirement = "The system shall be able to transfer from a libMesh source application that is being displaced to an MFEM target application."
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     max_parallel = 1 # schemadiff with multiple ranks
     recover = false
     restep = false
@@ -18,7 +18,7 @@
     input = 'libmesh_parent.i'
     exodiff = 'libmesh_parent_out.e'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     recover = false
     restep = false
     requirement = "The system shall be able to transfer from an MFEM source application to a displaced libMesh target application."
