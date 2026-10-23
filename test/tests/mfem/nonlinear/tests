@@ -10,7 +10,7 @@
       csvdiff = 'nldiffusion_petsc_csv_point_sample_0001.csv'
       detail = 'MFEM PETSc nonlinear solver, and the'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
       max_parallel = 15 # mfem/mfem#5375
     []
@@ -21,7 +21,7 @@
       csvdiff = 'nldiffusion_newton_csv_point_sample_0001.csv'
       detail = 'native MFEM Newton solver. Additionally the system shall support nesting both nonlinear and linear solvers under a common solvers syntax block.'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       recover = false
     []
   []
@@ -29,7 +29,7 @@
     design = 'MFEMNewtonNonlinearSolver.md'
     issues = '#33716'
     requirement = 'The system shall be able to shorten the updates taken by a native MFEM Newton nonlinear solve, such that'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     [damped]
       type = CSVDiff
       input = nldiffusion_newton.i
@@ -85,7 +85,7 @@
                 OutputData/NLDiffusionNonZeroRHS/Run0/Cycle000001/proc000000.vtu'
     requirement = 'The system shall have the ability to solve a non-linear diffusion with non-zero rhs using MFEM.'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     max_parallel = 1 # schemadiff with multiple ranks
     recover = false
   []
@@ -98,7 +98,7 @@
       input = nlheattransfer.i
       csvdiff = 'NLHeatTransferLinearized_line_sample_0003.csv'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       restep = false
       max_parallel = 10 # stacked_hexes.e has 10 elements; recovered MFEM meshes require a nonempty partition
       cli_args = 'BCs/active="linearized" '
@@ -110,7 +110,7 @@
       input = nlheattransfer.i
       csvdiff = 'NLHeatTransfer_line_sample_0003.csv'
       capabilities = 'mfem'
-      compute_devices = 'cpu'
+      compute_devices = 'cpu cuda'
       restep = false
       max_parallel = 10 # stacked_hexes.e has 10 elements; recovered MFEM meshes require a nonempty partition
       prereq = 'MFEMNonLinearHeatTransfer/linearized'
@@ -128,7 +128,7 @@
                 NLHeatConduction_centre_temperature_0040.csv
                 NLHeatConduction_centre_temperature_0050.csv'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     restep = false
   []
   [MFEMNonLinearHeatConductionQuadratureFunction]
@@ -143,7 +143,7 @@
                 NLHeatConduction_centre_temperature_0040.csv
                 NLHeatConduction_centre_temperature_0050.csv'
     capabilities = 'mfem'
-    compute_devices = 'cpu'
+    compute_devices = 'cpu cuda'
     recover = false
     restep = false
   []
